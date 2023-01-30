@@ -3,8 +3,8 @@
   <form @submit.prevent="login">
     <h1>Login</h1>
     <div class="form-group">
-      <label for="username">Username:</label>
-      <input type="text" id="username" v-model="username">
+      <label for="email">Email:</label>
+      <input type="text" id="email" v-model="email">
     </div>
     <div class="form-group">
       <label for="password">Password:</label>
@@ -25,30 +25,30 @@ import router from '../router/index'
 
 export default defineComponent({
   setup() {
-    const username = ref("");
+    const email = ref("");
     const password = ref("");
     const errorMessage = ref("");
     const response = ref("");
 
     async function login() {
-      if (username.value === "" || password.value === "") {
-        errorMessage.value = "Username and password are required.";
+      if (email.value === "" || password.value === "") {
+        errorMessage.value = "Email and password are required.";
       } else {
         try {
-          const res = await fakeShopApi.post("/auth/login", { "email": username.value, "password": password.value });
+          const res = await fakeShopApi.post("/auth/login", { "email": email.value, "password": password.value });
           localStorage.setItem("access_token", res.data.access_token);
-          router.push('/');
+          router.push({name: 'home' });
 
         } catch (error) {
             console.log(error);
             
-          errorMessage.value = "Incorrect username or password.";
+          errorMessage.value = "Incorrect email or password.";
         }
       }
     }
 
     return {
-      username,
+      email,
       password,
       errorMessage,
       response,

@@ -15,6 +15,12 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginView,
   },
   {
+    path: "/products",
+    name: "products",
+    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting
