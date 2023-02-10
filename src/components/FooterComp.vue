@@ -1,7 +1,7 @@
 <template>
-    <footer v-if="$route.name !== 'login'">
+    <footer>
         <div>
-            <p>PlatziShop</p>
+            <p>Flitter</p>
         </div>
         
     </footer>
@@ -11,6 +11,7 @@
 footer{
     position: absolute;
     bottom: 0;
+    left: 0;
     width: 100%;
     height: 50px;
 

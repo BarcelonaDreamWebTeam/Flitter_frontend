@@ -24,8 +24,7 @@ export default defineComponent({
 
 <style>
 #app{
+  margin: 0px;
   background-color: white;
-  width: 100vw;
-  height: 100vh;
 }
 </style>

@@ -1,25 +1,15 @@
 <template>
   <div class="home">
-    <HelloWorld msg="Welcome to Platzi Shop"/>
+    <h1> Welcome to Flitter </h1>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4n_urpJ9XpwOTdzBVbGvactwHrPagYQrTJPYjxfxLGkSyu7nJZVqRVGAeohnPgKMrnKE&usqp=CAU" alt="">
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from '../components/HelloWorld.vue'; // @ is an alias to /src
-
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-    HelloWorld,
-  },
-});
-</script>
 
 <style scoped>
   .home{
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
   }
 </style>

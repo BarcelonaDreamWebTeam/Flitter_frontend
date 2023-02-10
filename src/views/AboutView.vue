@@ -9,7 +9,7 @@
 
 <script>
 import { ref, defineComponent, nextTick } from 'vue';
-import fakeShopApi from '../api/fakeShopApi';
+import backend_call from '../api/backend_call';
 
 export default defineComponent({
   setup() {
@@ -20,7 +20,7 @@ export default defineComponent({
 
     async function fetchData() {
       let token = localStorage.getItem("access_token");
-      const resp = await fakeShopApi.get('auth/profile', {headers: {Authorization: `Bearer ${token}`}});
+      const resp = await backend_call.get('api/protected', {headers: {Authorization: `Bearer ${token}`}});
       nextTick(() => {
         name.value = resp.data.name;
         email.value = resp.data.email;

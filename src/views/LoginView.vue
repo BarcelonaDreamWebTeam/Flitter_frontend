@@ -19,9 +19,12 @@
 </template>
 
 <script lang="ts">
-import fakeShopApi from '../api/fakeShopApi';
-import { defineComponent, ref } from "vue";
+import backend_call from '../api/backend_call';
+import { defineComponent, ref, watch, onMounted } from "vue";
 import router from '../router/index'
+import { useRouter } from 'vue-router';
+
+const access_token = ref("");
 
 export default defineComponent({
   setup() {
@@ -29,15 +32,17 @@ export default defineComponent({
     const password = ref("");
     const errorMessage = ref("");
     const response = ref("");
+    const router = useRouter();
+
 
     async function login() {
       if (email.value === "" || password.value === "") {
         errorMessage.value = "Email and password are required.";
       } else {
         try {
-          const res = await fakeShopApi.post("/auth/login", { "email": email.value, "password": password.value });
-          localStorage.setItem("access_token", res.data.access_token);
-          router.push({name: 'home' });
+          const res = await backend_call.post("/api/users/login", { "email": email.value, "password": password.value });
+          localStorage.setItem("access_token", res.data.token);
+          access_token.value = res.data.token;
 
         } catch (error) {
             console.log(error);
@@ -47,15 +52,23 @@ export default defineComponent({
       }
     }
 
+    onMounted(() => {
+      if (access_token.value) {
+        router.push({ name: 'home' });
+      }
+    });
+
+
     return {
       email,
       password,
       errorMessage,
       response,
-      login
-    }}
+      login,
+    };
+  },
+});
 
-})
 </script>
 
 
@@ -63,8 +76,14 @@ export default defineComponent({
 .login-container {
   width: 400px;
   margin: 0 auto;
-  padding: 20px;
+  margin-top: 30px;
+  padding: 40px;
+  padding-bottom: 60px;
   text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+
 }
 
 form {
@@ -84,10 +103,14 @@ label {
 input[type="text"], input[type="password"] {
   padding: 10px;
   width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+
 }
 
 button[type="submit"] {
-  background-color: purple;
+  background-color: rgb(59, 59, 225);
   color: white;
   padding: 14px 20px;
   margin: 8px 0;
@@ -101,6 +124,6 @@ button[type="submit"]:hover {
 }
 
 .error{
-    color:red
+    color:red;
 }
 </style>

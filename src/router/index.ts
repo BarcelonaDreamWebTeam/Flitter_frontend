@@ -1,6 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
+import SignupView from '../views/SignupView.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -15,10 +17,9 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginView,
   },
   {
-    path: "/products",
-    name: "products",
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
-    meta: { requiresAuth: true }
+    path: "/signup",
+    name: "signup",
+    component: SignupView,
   },
   {
     path: '/about',
@@ -36,22 +37,6 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes
 })
-
-router.beforeEach((to, from, next) => {
-
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    const accessToken = localStorage.getItem("access_token");
-
-    if (!accessToken) {
-      
-      next({ name: "login" });
-    } else {
-      next();
-    }
-  } else {
-    next();
-  }
-});
 
 export default router;
 
