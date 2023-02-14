@@ -17,8 +17,6 @@
       </select>
       <label>User:</label>
       <input v-model="query.user" />
-      <label>Tweet ID:</label>
-      <input v-model="query._id" />
       <label>Text:</label>
       <input v-model="query.text" />
       <label>Hashtags:</label>
@@ -26,24 +24,30 @@
       <button @click="searchTweets">Search</button>
     </div>
     <div class="tweet" v-if="access_token">
-      <textarea v-model="newTweet.text" />
-      <button @click="postTweet">Tweet</button>
+      <textarea v-model="newTweet.text" placeholder="Enter your text here..." ></textarea>
+      <input type="hashtags" v-model="newTweet.hashtags" placeholder="hashtags here...">
+      <button @click="postTweet">Fleet</button>
     </div>
     <div class="tweetlist">
       <ul v-for="tweet in tweets" :key="tweet.id">
-        <li class="user">{{ tweet.user }}</li>
-        <li class="testo">{{ tweet.text }}</li>
+        <li v-if="tweet.user" class="user">@{{ tweet.user }}</li>
+        <li v-if="tweet.text" class="testo">{{ tweet.text }}</li>
         <li class="hash">
-          <span v-for="hashtag in tweet.hashtags" :key="hashtag">#{{ hashtag }}</span>
+          <div v-if="tweet.hashtags"><span  v-for="hashtag in tweet.hashtags" :key="hashtag">#{{ hashtag }}</span></div>
+          <span v-if="tweet.likes > 0">❤️{{ tweet.likes }}</span>
         </li>
       </ul>
     </div>
   </div>
 </template>
+
 <script>
-import { onMounted, ref } from 'vue';
+
+import { onMounted, ref, reactive } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
+import backend_call from '../api/backend_call';
+
 
 export default {
   setup() {
@@ -58,38 +62,67 @@ export default {
       limit: '',
       fields: '',
       sort: '',
-      filter: 'recent',
+      likes: 0
     });
+
+    const newTweet = reactive({
+      text: '',
+      hashtags: '',
+      username: '',
+    })
+
     const tweets = ref([]);
-    const newTweet = ref({ text: '' });
+
 
     onMounted(searchTweets);
+    onMounted(getUser);
 
     async function searchTweets() {
       const response = await axios.get('http://localhost:3015/api/tweets?limit=10', { params: query.value });
       tweets.value = response.data.results;
     }
 
-    async function postTweet(tweet) {
-  // Get the access token from local storage
-  const access_token = localStorage.getItem('access_token');
+    async function getUser(){
+      const access_token = localStorage.getItem('access_token');
 
-  try {
-    // Send the tweet data to the server with the access token in the headers
-    const response = await axios.post('https://localhost:3015/api/protected', tweet, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
 
-    // Clear the input field and update the tweet list
-    tweet.text = '';
-    searchTweets();
-  } catch (error) {
-    console.error(error);
+      // Get the access token from local storage
+      const tokenParts = access_token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.userId;
+      const resp = await backend_call.get(`api/users/${userId}`);
+        let user = resp.data.result.username;
+        console.log(user);
+        localStorage.setItem('user', user)
+
+    }
+
+    const postTweet = async () => {
+      const storage = localStorage.getItem('user');
+
+      console.log(storage);
+      try {
+        // Send the tweet data to the server with the access token in the headers
+
+      
+        const post = await axios.post('http://localhost:3015/api/tweets', {text : newTweet.text, user: storage, hashtags: newTweet.hashtags}, {
+          // headers: {
+          //   'Content-Type': 'application/json',
+          //   Authorization: `Bearer ${access_token}`,
+          // },
+        });
+        
+
+
+        // Clear the input field and update the tweet list
+        newTweet.text = '';
+        newTweet.hashtags = '';
+        searchTweets();
+
+    } catch (error) {
+      console.error(error);
+    }
   }
-}
 
     return {
       access_token,
@@ -98,6 +131,7 @@ export default {
       newTweet,
       searchTweets,
       postTweet,
+      getUser
     };
   },
 };
@@ -131,16 +165,6 @@ input {
   font-size: 16px;
 }
 
-button {
-  margin-top: 10px;
-  padding: 8px;
-  background-color: indigo;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
 .tweetlist{
   margin-bottom: 40px;
@@ -149,6 +173,8 @@ button {
 }
 
 ul {
+  min-width: 100px;
+  max-width: 550px;
   list-style: none;
   margin: 10px 0;
   padding: 10px;
@@ -175,7 +201,8 @@ ul .testo {
 ul .hash {
   border-radius: 5px;
   padding: 5px;
-  margin: 5px;
+  display: flex;
+  justify-content: space-between;
 }
 
 #filter{
@@ -184,20 +211,15 @@ ul .hash {
   font-size: 16px;
 }
 
-  .tweet {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-
   textarea {
-    width: 500px;
-    height: 100px;
+    width: 550px;
+    height: 70px;
     font-size: 16px;
     padding: 10px;
     margin-bottom: 20px;
     box-shadow: 10px;
+    min-width: 100px;
+    max-width: 550px;
   }
 
   select{
@@ -205,6 +227,55 @@ ul .hash {
     padding: 8px;
 
   }
+
+  .tweet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+input{
+  display: flex;
+  flex-direction: column;
+
+}
+
+.tweet textarea {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  font-size: 18px;
+  margin-bottom: 10px;
+  padding: 5px;
+  resize: none;
+}
+
+.tweet input[type="hashtags"] {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  font-size: 16px;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #1DA1F2;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 5px;
+}
+
+button:hover {
+  background-color: #0D8DD1;
+}
+
 
 
 </style>

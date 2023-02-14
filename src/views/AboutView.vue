@@ -1,58 +1,135 @@
 <template>
-  <div>
-    <h1>{{ name }}</h1>
-    <p>{{ email }}</p>
-    <img :src="avatar" alt="">
-    <p>Role: {{ role }}</p>
+  <div class="userprofile">
+    <template v-if="userData">
+      <h1>Hello, {{ userData.user }}</h1>
+      <img src="../assets/avatar.webp" alt="">
+      <p>Your email: {{ userData.email }}</p>
+      <hr>
+      <div class="tweetlist">
+        <ul v-for="twee in userData.tweet" :key="twee.id">
+          <li>
+            <div class="user">@{{ twee.user }}</div>
+            <div class="testo">{{ twee.text }}</div>
+            <div class="hash">
+              <span v-for="hashtag in twee.hashtags" :key="hashtag">#{{ hashtag }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </template>
+    <template v-else>
+      <p>Loading user data...</p>
+    </template>
   </div>
 </template>
 
+
 <script>
-import { ref, defineComponent, nextTick } from 'vue';
+import { ref, defineComponent, onMounted, computed } from 'vue';
 import backend_call from '../api/backend_call';
 
 export default defineComponent({
   setup() {
-    const name = ref(null);
+    const user = ref(null);
     const email = ref(null);
-    const avatar = ref(null);
-    const role = ref(null);
+    const tweet = ref(null)
 
     async function fetchData() {
       let token = localStorage.getItem("access_token");
-      const resp = await backend_call.get('api/protected', {headers: {Authorization: `Bearer ${token}`}});
-      nextTick(() => {
-        name.value = resp.data.name;
-        email.value = resp.data.email;
-        avatar.value = resp.data.avatar;
-        role.value = resp.data.role;
-      });
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.userId;
+
+
+      try {
+    const resp = await backend_call.get(`api/users/${userId}`);
+      user.value = resp.data.result.username;
+      email.value = resp.data.result.email;
+    
+    const tweets = await backend_call.get(`api/tweets?user=${user.value}`);
+    tweet.value = tweets.data.results
+        
+
+  } catch (error) {
+    console.error(error);
+  }
+
     }
 
-    fetchData();
+   
+    onMounted(()=>{
+      fetchData();
+    })
+
+
+    const userData = computed(() => {
+  if (user.value && email.value) {
+    return {
+      user: user.value,
+      email: email.value,
+      tweet: tweet.value,
+    };
+  } else {
+    return null;
+  }
+});
+
 
     return {
-      name,
-      email,
-      avatar,
-      role
+      userData,
     };
-  }
+  },
 });
 </script>
 
 
 <style scoped>
-div{
+.userprofile{
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   flex-direction: column;
 }
 
 img{
-  width: 200px;
-  border: 2px solid black;
-  border-radius: 30px;
+  width: 100px;
+}
+
+.user {
+  font-weight:bold;
+}
+
+ul .hash {
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+ul {
+  list-style: none;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color:  lightskyblue;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  transform: translateZ(10px);
+
+
+}
+
+ul .testo {
+  background-color: white;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.tweetlist{
+  margin-bottom: 40px;
+  width: 550px;
+  display: flex;
+  flex-direction: column-reverse;
 }
 </style>
