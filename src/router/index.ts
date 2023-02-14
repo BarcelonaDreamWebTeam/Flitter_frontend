@@ -2,6 +2,9 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
+import HandleForgotPassword from '../views/HandleForgotPassword.vue'
+import ResetPassword from '../views/ResetPassword.vue'
+
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -15,6 +18,16 @@ const routes: Array<RouteRecordRaw> = [
     path: "/login",
     name: "login",
     component: LoginView,
+  },
+  {
+    path: "/forgotpassword",
+    name: "forgotpassword",
+    component: HandleForgotPassword,
+  },
+  {
+    path: "/resetpassword",
+    name: "resetpassword",
+    component: ResetPassword,
   },
   {
     path: "/signup",

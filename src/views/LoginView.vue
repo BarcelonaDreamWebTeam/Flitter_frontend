@@ -15,16 +15,17 @@
     </div>
     <button type="submit">Submit</button>
   </form>
+  <p class="forgot-password">
+    <router-link to="/forgotpassword">Forgot Password</router-link>
+  </p>
 </div>
 </template>
 
 <script lang="ts">
 import backend_call from '../api/backend_call';
-import { defineComponent, ref, watch, onMounted } from "vue";
-import router from '../router/index'
+import { defineComponent, ref } from "vue";
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-
-const access_token = ref("");
 
 export default defineComponent({
   setup() {
@@ -33,7 +34,7 @@ export default defineComponent({
     const errorMessage = ref("");
     const response = ref("");
     const router = useRouter();
-
+    const store = useStore();
 
     async function login() {
       if (email.value === "" || password.value === "") {
@@ -42,7 +43,8 @@ export default defineComponent({
         try {
           const res = await backend_call.post("/api/users/login", { "email": email.value, "password": password.value });
           localStorage.setItem("access_token", res.data.token);
-          access_token.value = res.data.token;
+          store.commit('setAccessToken', res.data.token);
+          router.push({ name: 'home' });
 
         } catch (error) {
             console.log(error);
@@ -51,13 +53,6 @@ export default defineComponent({
         }
       }
     }
-
-    onMounted(() => {
-      if (access_token.value) {
-        router.push({ name: 'home' });
-      }
-    });
-
 
     return {
       email,

@@ -1,7 +1,10 @@
 <template>
   <header class="header">
     <nav class="navbar">
-      <router-link class="logo" :to="{name: 'home'}">Flitter</router-link>
+      <div class="logo">
+        <img src="../assets/logo.png" alt="">
+        <router-link class="flitter" :to="{name: 'home'}">Flitter</router-link>
+      </div>
       <div class="navbar-links" v-if="access_token === null">
           <router-link class="nav-link" :to="{name: 'login'}">Login</router-link>
           <router-link class="nav-link" :to="{name: 'signup'}">Signup</router-link>
@@ -15,26 +18,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, reactive } from 'vue';
+import { defineComponent, computed } from 'vue';
 import router from '../router/index'
-
+import { useStore } from 'vuex';
 
 export default defineComponent({
   setup() {
-    const access_token = ref(localStorage.getItem('access_token'));
+    const store = useStore();
+    const access_token = computed(() => store.state.access_token);
 
     const logout = () => {
       localStorage.removeItem("access_token");
-      access_token.value = null;
-      router.push({name: 'login' })
+      store.commit('setAccessToken', null);
+      router.push({name: 'login' })    
     };
 
-    watch(
-      () => localStorage.getItem('access_token'),
-      (newValue) => {
-        access_token.value = newValue;
-      }
-    );
 
     return { 
       logout,
@@ -48,7 +46,6 @@ export default defineComponent({
 
 <style scoped>
 .header {
-  margin: 0;
   background-color: lightskyblue;
   height: 60px;
   display: flex;
@@ -65,11 +62,24 @@ export default defineComponent({
   padding: 0 20px;
 }
 
-.logo {
+.logo{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo .flitter{
+  text-decoration: none;
   color: white;
   font-size: 22px;
   font-weight: bold;
-  text-decoration: none;
+  font-family:  'Lucida Grande';
+  background-image: linear-gradient(to right, 
+  rgb(51, 137, 157), indigo, rgb(51, 137, 157), indigo, rgb(51, 137, 157));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
 }
 
 .navbar-links {
@@ -88,5 +98,9 @@ export default defineComponent({
 .nav-link:hover {
   color: #fff;
   text-decoration: underline;
+}
+
+.logo img{
+  width: 55px;
 }
 </style>

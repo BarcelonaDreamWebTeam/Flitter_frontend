@@ -3,47 +3,63 @@
   <form >
     <h1>Sign up</h1>
     <div class="form-group">
+      <label for="username">Username:</label>
+      <input class="form-control" id="username" v-model="formData.username" type="text" name="username" required />
+
+</div>
+    <div class="form-group">
       <label for="email">Email:</label>
-      <input class = "form-control" id="email" v-model="email" type="email" />
+      <input class="form-control" id="email" v-model="formData.email" type="email" name="email" required />
     </div>
     <div class="form-group">
       <label for="password">Password:</label>
-      <input class = "form-control" id="password" v-model="password" type="password" />
-    </div>
+      <input class="form-control" id="password" v-model="formData.password" type="password" name="password" required />
+</div>
     <button class="btn" @click.prevent="handleSignup">Sign Up</button>
-    <div class="error">{{ errorMessage }}</div>
+    <div class="error" v-if="errorMessage">{{ errorMessage }}</div>
+    <div class="success" v-if="successMessage">{{ successMessage }}</div>
   </form>
 </div>
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
 
 export default {
   setup() {
-    const email = ref('')
-    const password = ref('')
     const errorMessage = ref('')
+    const successMessage = ref('')
+
+
+    const formData = reactive({
+      email: '',
+      password: '',
+      username: '',
+    })
 
     const handleSignup = async () => {
-      if (!email.value || !password.value) {
-        errorMessage.value = 'Email and password are required.'
-        return
-      }
+      successMessage.value = ''
+      errorMessage.value = ''
 
       try {
-        const res = await axios.post('http://localhost:3015/api/users/signup', { email: email.value, password: password.value })
-        // handle successful signup
-      } catch (error) {
-        errorMessage.value = 'An error occurred while signing up.'
+      
+        await axios.post('http://localhost:3015/api/users/signup', { email: formData.email, password: formData.password, username: formData.username })
+        .then(() => {
+          successMessage.value = 'Signup successful, you may now log in'
+          errorMessage.value = ''
+        });
+      } catch (error: any) {        
+        errorMessage.value = error.response.data.message
       }
     }
 
     return {
-      email,
-      password,
+      formData,
       errorMessage,
+      successMessage,
       handleSignup
     }
   }

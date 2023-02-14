@@ -1,9 +1,11 @@
 <template>
   <div id="app">
     <NavBar/>
-    <FooterComp/>
     <router-view />
+    <FooterComp/>
+
   </div>
+
 </template>
 
 <script lang="ts">
@@ -25,6 +27,13 @@ export default defineComponent({
 <style>
 #app{
   margin: 0px;
-  background-color: white;
+  padding: 0px;
+
+  
+}
+
+body{
+  margin: 0px;
+
 }
 </style>
