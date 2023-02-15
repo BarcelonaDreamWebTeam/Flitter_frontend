@@ -9,7 +9,7 @@
 <style scoped>
 footer{
     position: fixed;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
     height: 30px;
 }
@@ -17,8 +17,7 @@ footer{
 div{
     width: 100%;
     height: 30px;
-    background-image: linear-gradient(to right, 
-    rgb(51, 137, 157), indigo, rgb(51, 137, 157), indigo, rgb(51, 137, 157));
+    background-color: rgb(65, 164, 226);
     color: white;
     font-size: 15px;
     display: flex;

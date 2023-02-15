@@ -46,7 +46,7 @@ export default defineComponent({
 
 <style scoped>
 .header {
-  background-color: lightskyblue;
+  background-color: rgb(65, 164, 226);;
   height: 60px;
   display: flex;
   justify-content: center;

@@ -33,8 +33,14 @@
         <li v-if="tweet.user" class="user">@{{ tweet.user }}</li>
         <li v-if="tweet.text" class="testo">{{ tweet.text }}</li>
         <li class="hash">
-          <div v-if="tweet.hashtags"><span  v-for="hashtag in tweet.hashtags" :key="hashtag">#{{ hashtag }}</span></div>
-          <span v-if="tweet.likes > 0">❤️{{ tweet.likes }}</span>
+          <div v-if="tweet.hashtags">
+            <span v-for="hashtag in tweet.hashtags" :key="hashtag">#{{ hashtag }}</span>
+          </div>
+          <div>
+          <span v-if="tweet.likes > 0">{{ tweet.likes }} </span>
+          <span v-if="access_token == null && tweet.likes > 0 ">❤️</span>
+          <button v-if="access_token !== null && !likedTweets.includes(tweet.id)" @click="likeTweet(tweet)">❤️</button>
+        </div>
         </li>
       </ul>
     </div>
@@ -72,6 +78,8 @@ export default {
     })
 
     const tweets = ref([]);
+    const likedTweets = ref([]);
+
 
 
     onMounted(searchTweets);
@@ -124,15 +132,29 @@ export default {
     }
   }
 
-    return {
-      access_token,
-      query,
-      tweets,
-      newTweet,
-      searchTweets,
-      postTweet,
-      getUser
-    };
+  const likeTweet = async (tweet) => {
+  try {
+    const response = await axios.patch(`http://localhost:3015/api/tweets/${tweet.id}`, { likes: tweet.likes + 1 });
+    tweet.likes += 1;
+    likedTweets.value.push(tweet.id);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+return {
+  access_token,
+  query,
+  tweets,
+  newTweet,
+  likedTweets,
+  searchTweets,
+  postTweet,
+  getUser,
+  likeTweet,
+};
+
   },
 };
 </script>
